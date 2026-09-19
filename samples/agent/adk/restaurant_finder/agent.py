@@ -58,6 +58,7 @@ from a2ui.a2a.parts import parse_response_to_parts, stream_response_to_parts
 logger = logging.getLogger(__name__)
 
 DEFAULT_LITELLM_MODEL = "openai/gpt-5.6-luna"
+DEFAULT_OPENAI_REASONING_EFFORT = "none"
 
 
 class RestaurantAgent:
@@ -155,6 +156,11 @@ class RestaurantAgent:
     ) -> LlmAgent:
         """Builds the LLM agent for the restaurant agent."""
         model_name = os.getenv("LITELLM_MODEL", DEFAULT_LITELLM_MODEL)
+        model_options = {}
+        if model_name.startswith("openai/"):
+            model_options["reasoning_effort"] = os.getenv(
+                "OPENAI_REASONING_EFFORT", DEFAULT_OPENAI_REASONING_EFFORT
+            )
 
         instruction = (
             inference_format.generate_system_prompt(
@@ -169,7 +175,7 @@ class RestaurantAgent:
         )
 
         return LlmAgent(
-            model=LiteLlm(model=model_name),
+            model=LiteLlm(model=model_name, **model_options),
             name="restaurant_agent",
             description="An agent that finds restaurants and helps book tables.",
             instruction=instruction,

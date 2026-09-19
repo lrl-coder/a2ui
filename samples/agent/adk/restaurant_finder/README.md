@@ -27,7 +27,9 @@ This sample is featured in [Quickstart: Run A2UI in 5 Minutes](https://a2ui.org/
 
    The sample uses `openai/gpt-5.6-luna` through LiteLLM by default. Set
    `OPENAI_API_KEY` and change `LITELLM_MODEL` in `.env` if you want another
-   OpenAI model. LiteLLM provider prefixes are required in model names.
+   OpenAI model. LiteLLM provider prefixes are required in model names. The
+   default `OPENAI_REASONING_EFFORT=none` keeps function tools compatible with
+   the Chat Completions endpoint used by this adapter.
 
 3. Run the agent server:
 
