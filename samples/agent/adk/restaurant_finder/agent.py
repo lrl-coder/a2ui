@@ -32,7 +32,7 @@ from google.adk.agents import run_config
 from google.adk.agents.llm_agent import LlmAgent
 from google.adk.artifacts import InMemoryArtifactService
 from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
-from google.adk.models import Gemini
+from google.adk.models.lite_llm import LiteLlm
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
@@ -56,6 +56,8 @@ from a2ui.a2a.extension import get_a2ui_agent_extension
 from a2ui.a2a.parts import parse_response_to_parts, stream_response_to_parts
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_LITELLM_MODEL = "openai/gpt-5.6-luna"
 
 
 class RestaurantAgent:
@@ -152,10 +154,7 @@ class RestaurantAgent:
         self, inference_format: Optional[DirectJsonFormat] = None
     ) -> LlmAgent:
         """Builds the LLM agent for the restaurant agent."""
-        model_env = (
-            os.getenv("MODEL_NAME") or os.getenv("LITELLM_MODEL") or "gemini-3.8-flash"
-        )
-        model_name = model_env.split("/")[-1]
+        model_name = os.getenv("LITELLM_MODEL", DEFAULT_LITELLM_MODEL)
 
         instruction = (
             inference_format.generate_system_prompt(
@@ -170,7 +169,7 @@ class RestaurantAgent:
         )
 
         return LlmAgent(
-            model=Gemini(model=model_name),
+            model=LiteLlm(model=model_name),
             name="restaurant_agent",
             description="An agent that finds restaurants and helps book tables.",
             instruction=instruction,

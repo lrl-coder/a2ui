@@ -21,7 +21,7 @@ import click
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
-from agent import RestaurantAgent
+from agent import DEFAULT_LITELLM_MODEL, RestaurantAgent
 from agent_executor import RestaurantAgentExecutor
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -75,13 +75,22 @@ class MissingAPIKeyError(Exception):
 @click.option("--port", default=10002)
 def main(host, port):
     try:
-        # Check for API key only if Vertex AI is not configured
-        if not os.getenv("GOOGLE_GENAI_USE_VERTEXAI") == "TRUE":
-            if not os.getenv("GEMINI_API_KEY"):
-                raise MissingAPIKeyError(
-                    "GEMINI_API_KEY environment variable not set and"
-                    " GOOGLE_GENAI_USE_VERTEXAI is not TRUE."
-                )
+        model_name = os.getenv("LITELLM_MODEL", DEFAULT_LITELLM_MODEL)
+        if model_name.startswith("openai/") and not os.getenv("OPENAI_API_KEY"):
+            raise MissingAPIKeyError(
+                "OPENAI_API_KEY environment variable is required for "
+                f"LITELLM_MODEL={model_name}."
+            )
+        if (
+            model_name.startswith("gemini/")
+            and os.getenv("GOOGLE_GENAI_USE_VERTEXAI") != "TRUE"
+            and not os.getenv("GEMINI_API_KEY")
+        ):
+            raise MissingAPIKeyError(
+                "GEMINI_API_KEY environment variable is required for "
+                f"LITELLM_MODEL={model_name} unless "
+                "GOOGLE_GENAI_USE_VERTEXAI=TRUE."
+            )
 
         base_url = f"http://{host}:{port}"
 

@@ -25,6 +25,10 @@ This sample is featured in [Quickstart: Run A2UI in 5 Minutes](https://a2ui.org/
    # Edit .env with your actual API key (do not commit .env)
    ```
 
+   The sample uses `openai/gpt-5.6-luna` through LiteLLM by default. Set
+   `OPENAI_API_KEY` and change `LITELLM_MODEL` in `.env` if you want another
+   OpenAI model. LiteLLM provider prefixes are required in model names.
+
 3. Run the agent server:
 
    ```bash
